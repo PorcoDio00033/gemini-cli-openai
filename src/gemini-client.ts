@@ -419,8 +419,6 @@ export class GeminiApiClient {
 			includeReasoning
 		);
 
-		console.log("Generated generationConfig:", JSON.stringify(generationConfig, null, 2));
-
 		// For thinking models with fake thinking (fallback when real thinking is not enabled or not requested)
 		let needsThinkingClose = false;
 		if (isThinkingModel && isFakeThinkingEnabled && !includeReasoning) {
