@@ -101,3 +101,6 @@ export const MIME_TYPE_MAP: Record<string, string> = {
 	wmv: "video/x-ms-wmv",
 	flv: "video/x-flv"
 };
+
+// rate limit higher than 60s means quota exhausted for the day for that specific model class (pro/flash)
+export const LONG_RESET_THRESHOLD_MS = 60000;

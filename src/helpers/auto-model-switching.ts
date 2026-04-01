@@ -61,9 +61,9 @@ export class AutoModelSwitchingHelper {
 		const minutes = durationStr.match(/(\d+)m/);
 		const seconds = durationStr.match(/(\d+)s/);
 
-		if (hours) totalMs += parseInt(hours[1]) * 60 * 60 * 1000;
-		if (minutes) totalMs += parseInt(minutes[1]) * 60 * 1000;
-		if (seconds) totalMs += parseInt(seconds[1]) * 1000;
+		if (hours) totalMs += parseInt(hours[1], 10) * 60 * 60 * 1000;
+		if (minutes) totalMs += parseInt(minutes[1], 10) * 60 * 1000;
+		if (seconds) totalMs += parseInt(seconds[1], 10) * 1000;
 
 		return totalMs > 0 ? totalMs : null;
 	}

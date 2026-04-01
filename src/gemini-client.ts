@@ -11,7 +11,7 @@ import {
 } from "./types";
 import { AuthManager } from "./auth";
 import { CODE_ASSIST_ENDPOINT, CODE_ASSIST_API_VERSION } from "./config";
-import { REASONING_MESSAGES, REASONING_CHUNK_DELAY, THINKING_CONTENT_CHUNK_SIZE } from "./constants";
+import { REASONING_MESSAGES, REASONING_CHUNK_DELAY, THINKING_CONTENT_CHUNK_SIZE, LONG_RESET_THRESHOLD_MS } from "./constants";
 import { geminiCliModels } from "./models";
 import { validateContent } from "./utils/validation";
 import { GenerationConfigValidator } from "./helpers/generation-config-validator";
@@ -608,8 +608,7 @@ export class GeminiApiClient {
 						if (errorData?.error?.message) {
 							const resetMs = this.autoSwitchHelper.parseQuotaResetTime(errorData.error.message);
 							if (resetMs !== null) {
-								// rate limit higher than 60s means quota exhausted for the day for that specific model class (pro/flash)
-								if (resetMs > 60000) {
+								if (resetMs > LONG_RESET_THRESHOLD_MS) {
 									isLongReset = true;
 									console.log(`Long quota reset detected (${resetMs}ms). Skipping retries to trigger fallback.`);
 								} else {
