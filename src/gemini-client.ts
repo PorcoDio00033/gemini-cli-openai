@@ -11,7 +11,12 @@ import {
 } from "./types";
 import { AuthManager } from "./auth";
 import { CODE_ASSIST_ENDPOINT, CODE_ASSIST_API_VERSION } from "./config";
-import { REASONING_MESSAGES, REASONING_CHUNK_DELAY, THINKING_CONTENT_CHUNK_SIZE, LONG_RESET_THRESHOLD_MS } from "./constants";
+import {
+	REASONING_MESSAGES,
+	REASONING_CHUNK_DELAY,
+	THINKING_CONTENT_CHUNK_SIZE,
+	LONG_RESET_THRESHOLD_MS
+} from "./constants";
 import { geminiCliModels } from "./models";
 import { validateContent } from "./utils/validation";
 import { GenerationConfigValidator } from "./helpers/generation-config-validator";
@@ -625,7 +630,7 @@ export class GeminiApiClient {
 						break;
 					}
 
-					if (dynamicDelay !== null) {
+					if (dynamicDelay !== null && attempt < retryDelays.length) {
 						console.log(`Got ${response.status} for ${currentModel}, waiting for quota reset: ${dynamicDelay}ms`);
 						await new Promise((resolve) => setTimeout(resolve, dynamicDelay));
 						continue;
