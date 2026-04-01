@@ -619,7 +619,7 @@ export class GeminiApiClient {
 							}
 						}
 					} catch (e) {
-						console.log("Failed to parse rate limit error body, falling back to default retry delays.");
+						console.log("Failed to parse rate limit error body, falling back to default retry delays:", e);
 					}
 
 					if (isLongReset) {
@@ -627,12 +627,9 @@ export class GeminiApiClient {
 					}
 
 					if (dynamicDelay !== null) {
-						console.log(
-							`Got ${response.status} for ${currentModel}, waiting for quota reset: ${dynamicDelay}ms`
-						);
+						console.log(`Got ${response.status} for ${currentModel}, waiting for quota reset: ${dynamicDelay}ms`);
 						await new Promise((resolve) => setTimeout(resolve, dynamicDelay));
 						continue;
-
 					} else if (attempt < retryDelays.length) {
 						const delay = retryDelays[attempt];
 						console.log(
