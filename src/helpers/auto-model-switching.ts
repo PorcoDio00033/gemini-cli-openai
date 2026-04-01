@@ -45,6 +45,30 @@ export class AutoModelSwitchingHelper {
 	}
 
 	/**
+	 * Parses the quota reset time from a Gemini API error message.
+	 * Example message: "You have exhausted your capacity on this model. Your quota will reset after 20s."
+	 * Returns the reset time in milliseconds, or null if it cannot be parsed.
+	 * This is needed because apparently api doesn't return any rate-limit header
+	 */
+	parseQuotaResetTime(message: string): number | null {
+		const match = message.match(/reset after (.*?)\./);
+		if (!match) return null;
+
+		const durationStr = match[1];
+		let totalMs = 0;
+
+		const hours = durationStr.match(/(\d+)h/);
+		const minutes = durationStr.match(/(\d+)m/);
+		const seconds = durationStr.match(/(\d+)s/);
+
+		if (hours) totalMs += parseInt(hours[1]) * 60 * 60 * 1000;
+		if (minutes) totalMs += parseInt(minutes[1]) * 60 * 1000;
+		if (seconds) totalMs += parseInt(seconds[1]) * 1000;
+
+		return totalMs > 0 ? totalMs : null;
+	}
+
+	/**
 	 * Determines if fallback should be attempted for the given model and conditions.
 	 */
 	shouldAttemptFallback(originalModel: string): boolean {

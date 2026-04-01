@@ -599,7 +599,41 @@ export class GeminiApiClient {
 				}
 
 				if (this.autoSwitchHelper.isRateLimitStatus(response.status)) {
-					if (attempt < retryDelays.length) {
+					let dynamicDelay: number | null = null;
+					let isLongReset = false;
+
+					try {
+						const clonedResponse = response.clone();
+						const errorData = (await clonedResponse.json()) as { error?: { message?: string } };
+						if (errorData?.error?.message) {
+							const resetMs = this.autoSwitchHelper.parseQuotaResetTime(errorData.error.message);
+							if (resetMs !== null) {
+								// rate limit higher than 60s means quota exhausted for the day for that specific model class (pro/flash)
+								if (resetMs > 60000) {
+									isLongReset = true;
+									console.log(`Long quota reset detected (${resetMs}ms). Skipping retries to trigger fallback.`);
+								} else {
+									// small buffer just in case
+									dynamicDelay = resetMs + 1000;
+								}
+							}
+						}
+					} catch (e) {
+						console.log("Failed to parse rate limit error body, falling back to default retry delays.");
+					}
+
+					if (isLongReset) {
+						break;
+					}
+
+					if (dynamicDelay !== null) {
+						console.log(
+							`Got ${response.status} for ${currentModel}, waiting for quota reset: ${dynamicDelay}ms`
+						);
+						await new Promise((resolve) => setTimeout(resolve, dynamicDelay));
+						continue;
+
+					} else if (attempt < retryDelays.length) {
 						const delay = retryDelays[attempt];
 						console.log(
 							`Got ${response.status} for ${currentModel}, retrying in ${delay}ms (attempt ${attempt + 1}/${retryDelays.length})`
